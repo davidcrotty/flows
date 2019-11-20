@@ -9,6 +9,7 @@ import android.view.MenuItem
 import android.view.View
 
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -30,7 +31,7 @@ class MainActivity : AppCompatActivity() {
             emit(1)
             emit(2)
             emit(3)
-        }
+        }.flowOn(Dispatchers.IO) // explicit about where we run
     }
 
     private fun doFlow() {
@@ -40,8 +41,10 @@ class MainActivity : AppCompatActivity() {
                     throw Exception("oops")
                 }
                 it
+            }.retryWhen { _, attempt ->
+                attempt < 3
             }.catch {
-
+                // retry will blow up after exceeding attempts
             }.collect {
                 Log.d("MainActivity", "value $it")
             }
