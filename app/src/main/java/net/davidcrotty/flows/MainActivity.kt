@@ -10,9 +10,7 @@ import android.view.View
 
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -27,9 +25,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun createFlow(): Flow<Int> = flow {
+        emit(1)
+        emit(2)
+        emit(3)
+    }
+
     private fun doFlow() {
         GlobalScope.launch {
-            (1..3).asFlow().collect { resp ->
+            createFlow().collect { resp ->
                 Log.d("MainActivity", "flow $resp")
             }
         }
