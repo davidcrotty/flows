@@ -25,16 +25,25 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun createFlow(): Flow<Int> = flow {
-        emit(1)
-        emit(2)
-        emit(3)
+    private fun createFlow(): Flow<Int> {
+        return flow {
+            emit(1)
+            emit(2)
+            emit(3)
+        }
     }
 
     private fun doFlow() {
         GlobalScope.launch {
-            createFlow().collect { resp ->
-                Log.d("MainActivity", "flow $resp")
+            createFlow().map {
+                if (it == 2) {
+                    throw Exception("oops")
+                }
+                it
+            }.catch {
+
+            }.collect {
+                Log.d("MainActivity", "value $it")
             }
         }
     }
