@@ -2,17 +2,14 @@ package net.davidcrotty.flows
 
 import android.os.Bundle
 import android.util.Log
-import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
+import com.google.android.material.snackbar.Snackbar
 
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -22,9 +19,31 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
 
         fab.setOnClickListener { view ->
-            doFlow()
+            snackBarFlow()
         }
     }
+
+    /**
+     * Show snackbar in response to an event rather than state
+     */
+    private fun snackBarFlow() {
+        GlobalScope.launch(Dispatchers.IO) {
+            val dataFlow = dataSource()
+            withContext(Dispatchers.Main) {
+                dataFlow.collect {
+                    Snackbar.make(fab, "On boarding complete", Snackbar.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    private fun dataSource(): Flow<Boolean> = flow {
+        // simulate network call
+        delay(3000)
+        val passwordDidReset = true
+        emit(passwordDidReset)
+    }
+
 
     private fun createFlow(): Flow<Int> {
         return flow {
@@ -42,10 +61,11 @@ class MainActivity : AppCompatActivity() {
                 }
                 it
             }.retryWhen { _, attempt ->
+                emit(5) // pass downstream
                 attempt < 3
             }.catch {
                 // retry will blow up after exceeding attempts
-            }.collect {
+            }.collect { // flow must conclude with terminal operator as no action (equivilent to subscribe)
                 Log.d("MainActivity", "value $it")
             }
         }
