@@ -30,12 +30,9 @@ class MainActivity : AppCompatActivity() {
             viewModel.onBoardingCommand()
         }
 
-        GlobalScope.launch(Dispatchers.IO) {
-            val didOnBoard = viewModel.onBoardingChannel.receive()
-            if (didOnBoard) {
-                withContext(Dispatchers.Main) {
-                    Snackbar.make(fab, "On boarding complete", Snackbar.LENGTH_LONG).show()
-                }
+        GlobalScope.launch(Dispatchers.Default) {
+            viewModel.onBoardingChannel.consumeAsFlow().flowOn(Dispatchers.Main).collect {
+                Snackbar.make(fab, "On boarding complete", Snackbar.LENGTH_LONG).show()
             }
         }
     }
