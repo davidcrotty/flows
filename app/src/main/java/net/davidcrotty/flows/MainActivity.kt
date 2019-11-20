@@ -5,21 +5,38 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
 
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.first
 import kotlinx.coroutines.flow.*
 
 class MainActivity : AppCompatActivity() {
+
+    private val viewModel by lazy {
+        ViewModelProvider.NewInstanceFactory().create(MainActivityViewModel::class.java)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
+
+
         fab.setOnClickListener { view ->
-            snackBarFlow()
+            viewModel.onBoardingCommand()
+        }
+
+        GlobalScope.launch(Dispatchers.IO) {
+            val didOnBoard = viewModel.onBoardingChannel.receive()
+            if (didOnBoard) {
+                withContext(Dispatchers.Main) {
+                    Snackbar.make(fab, "On boarding complete", Snackbar.LENGTH_LONG).show()
+                }
+            }
         }
     }
 
@@ -36,7 +53,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun dataSource(): Flow<Boolean> = flow {
         // simulate network call
-        delay(3000)
+        delay(5000)
         val passwordDidReset = true
         emit(passwordDidReset)
     }
