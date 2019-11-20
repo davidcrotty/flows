@@ -5,28 +5,27 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.snackbar.Snackbar
 
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.first
 import kotlinx.coroutines.flow.*
+import net.davidcrotty.flows.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 
-    private val viewModel by lazy {
-        ViewModelProvider.NewInstanceFactory().create(MainActivityViewModel::class.java)
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        setSupportActionBar(toolbar)
+        val viewModel = ViewModelProviders.of(this).get(MainActivityViewModel::class.java)
+        val binding = DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main)
+        setSupportActionBar(binding.toolbar)
+        binding.viewModel = viewModel
 
-
-
-        fab.setOnClickListener { view ->
+        binding.fab.setOnClickListener {
             viewModel.onBoardingCommand()
         }
 

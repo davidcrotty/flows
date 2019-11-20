@@ -1,5 +1,6 @@
 package net.davidcrotty.flows
 
+import android.view.View
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -22,7 +23,7 @@ class MainActivityViewModel : ViewModel() {
         }
     }
 
-    suspend fun longRunningTask() : Boolean {
+    private suspend fun longRunningTask(): Boolean {
         delay(5000)
         return true
     }
