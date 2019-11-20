@@ -28,11 +28,8 @@ class MainActivity : AppCompatActivity() {
      */
     private fun snackBarFlow() {
         GlobalScope.launch(Dispatchers.IO) {
-            val dataFlow = dataSource()
-            withContext(Dispatchers.Main) {
-                dataFlow.collect {
-                    Snackbar.make(fab, "On boarding complete", Snackbar.LENGTH_LONG).show()
-                }
+            dataSource().flowOn(Dispatchers.Main).collect {
+                Snackbar.make(fab, "On boarding complete", Snackbar.LENGTH_LONG).show()
             }
         }
     }
